@@ -1,0 +1,445 @@
+company_name,healthcare_type,dhaka_location,full_address,website,phone,generic_email,facebook_page,key_services,fit_score,fit_reason,website_signals,decision_maker_name,decision_maker_title,decision_maker_email,decision_maker_phone,decision_maker_linkedin,other_decision_makers,email_subject,personalized_hook,personalized_email,timestamp
+American SuperSpecialty Hospital,Hospital,Uttara,"32 Isha Khan Avenue, Sector 6, Uttara Model Town, Dhaka, 1230",http://www.americanhospital-bd.com,"+88028932345, +88028918319, +88028918349, +88028918395, +8806662617496, +8801921346125, +8801733559050",rinku71rabbi@gmail.com,,,4,"Rule-based: 5/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: yes; online payment: no; live chat / WhatsApp: no; tech: PHP; beds: 32; copyright year: 2010 (site looks unmaintained); https: no,,,,,,,Online appointment booking at American SuperSpecialty Hospital,"Looking at American SuperSpecialty Hospital's website (32 beds), I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at American SuperSpecialty Hospital's website (32 beds), I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 32 beds that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:08
+Uttara Community Hospital,Hospital,Uttara,"House 24 Road 13, Sector 6, Uttara Model Town, Dhaka, 1230",http://ds24editor.wix.com/uchl,"+88028951475, +8801924752988, +8801962407044",,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for Uttara Community Hospital operations,Uttara Community Hospital serves Uttara as a hospital,"Dear Management Team,
+
+Uttara Community Hospital serves Uttara as a hospital. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:08
+UK Dental Clinic,Dental Clinic,Uttara,"House: 28, Angelica (4th Floor, Flat: A3) Gareeb E Newaz Road, Uttara Sector-11 (Chawrasta) Sonargaon Janapath,, Dhaka, 1230",https://www.ukdentalclinicbd.com,+8801944002002,info@ukdentalclinicbd.com,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for UK Dental Clinic operations,UK Dental Clinic serves Uttara as a dental clinic,"Dear Management Team,
+
+UK Dental Clinic serves Uttara as a dental clinic. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:08
+Gonoshasthaya Nagar Hospital mirpur (গণস্বাস্থ্য নগর হাসপাতাল ২ মিরপুর),Clinic,Dhaka,"7 8, Dhaka, 1216",https://gonoshasthayakendra.com/,"+8801712109375, +8804477751250",rinapandit.gk@gmail.com,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for Gonoshasthaya Nagar Hospital mirpur operations,Gonoshasthaya Nagar Hospital mirpur (গণস্বাস্থ্য নগর হাসপাতাল ২ মিরপুর) serves Dhaka as a clinic,"Dear Management Team,
+
+Gonoshasthaya Nagar Hospital mirpur (গণস্বাস্থ্য নগর হাসপাতাল ২ মিরপুর) serves Dhaka as a clinic. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:10
+Asgar Ali Hospital,Hospital,Dhaka,"111/1/A Distillery Road, Gandaria, Dhaka, 1204",https://asgaralihospital.com/,10602,info@asgaralihospital.com,https://www.facebook.com/asgaralihospital,,5,"Rule-based: sizeable organisation (beds 800); 3/6 digital features missing (online reports / patient portal, telemedicine / video consultation, live chat / WhatsApp)",online appointment booking: yes; online reports / patient portal: no; mobile app: yes; telemedicine / video consultation: no; online payment: yes; live chat / WhatsApp: no; tech: unknown; beds: 800; copyright year: 2026; https: yes,Md. Hasan,Managing Director,md@asgaralihospital.com (predicted),,https://www.linkedin.com/company/asgar-ali-hospital,Dr. Zabrul SM Haque - CEO; Fazlur Rahman - Founding Chairman,Same-day digital reports for Asgar Ali Hospital,"Looking at Asgar Ali Hospital's website (800 beds), I noticed patients still cannot download their reports online or consult a doctor by video","Dear Md. Hasan,
+
+Looking at Asgar Ali Hospital's website (800 beds), I noticed patients still cannot download their reports online or consult a doctor by video; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 800 beds that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:12
+Green Life Medical College Hospital,Hospital,Dhaka,"32 Green Road, Dhaka, 1205",https://www.greenlife.edu.bd/,+88029612345,greenlife.mc@gmail.com,,,4,"Rule-based: 5/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)","online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; copyright year: 2026; https: yes",Dr. Md. Mainul Ahasan,Managing Director,md@greenlife.edu.bd (predicted),,,Professor Shahla Khatun - Chairman,Online appointment booking at Green Life Medical College,"Looking at Green Life Medical College Hospital's website, I noticed patients still cannot book appointments online or download their reports online","Dear Dr. Md. Mainul Ahasan,
+
+Looking at Green Life Medical College Hospital's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:40
+Ibn Sina Hospital (head office),Hospital,Dhaka,"Dhaka, 1209",https://ibnsinatrust.com/,+8809610009616,info@ibnsinatrust.com,https://www.facebook.com/ibnsinatrustofficial,,5,"Rule-based: sizeable organisation (beds 300); 5/6 digital features missing (online reports / patient portal, mobile app, telemedicine / video consultation)",online appointment booking: yes; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: PHP; beds: 300; https: yes,Prof. Abu Naseer Mohammad Abduz Zaher,Chairman,md@ibnsinatrust.com (predicted),,https://www.linkedin.com/company/ibn-sina-trust,Commodore Md. Ataur Rahman - Chairman; Shah Abdul Hannan - Chairman; Dr. Choudhury Mahmood Hasan - Vice Chairman,Same-day digital reports for Ibn Sina Hospital (head,"Looking at Ibn Sina Hospital (head office)'s website (300 beds), I noticed patients still cannot download their reports online or use a mobile app","Dear Prof. Abu Naseer Mohammad Abduz Zaher,
+
+Looking at Ibn Sina Hospital (head office)'s website (300 beds), I noticed patients still cannot download their reports online or use a mobile app; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 300 beds that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:44
+A Mohammodia Medical Center,Clinic,Dhaka,"117/1 DIT Ext Fakirapool Road, Dhaka, 1000",http://www.amohammodiamedical.com,+8801819116317,f.rahman.aatm@gmail.com,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for A Mohammodia Medical Center operations,A Mohammodia Medical Center serves Dhaka as a clinic,"Dear Management Team,
+
+A Mohammodia Medical Center serves Dhaka as a clinic. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:44
+Lazz Pharma,Pharmacy,Dhaka,"63/C Lake Circus পান্থপথ, Dhaka, 1205",https://www.lazzpharma.com/,+88029117839,info@lazzpharma.com,,,3,"Rule-based: 5/6 digital features missing (online appointment booking, online reports / patient portal, mobile app); small buyer type",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: React / Next.js; https: yes,,,,,,,Online appointment booking at Lazz Pharma,"Looking at Lazz Pharma's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at Lazz Pharma's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:46
+250 bedded Tuberculosis Hospital,Hospital,Shyamoli,"Syed Mahbub Morshed Avenue, Shyamoli, Dhaka, 1207",http://tbhsd.gov.bd/,+8801969910200,ntbcp@hospi.dghs.gov.bd,,,4,"Rule-based: sizeable organisation (beds 250); 5/6 digital features missing (online appointment booking, online reports / patient portal, mobile app); government facility - procurement runs through tenders","online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; beds: 250; https: no",,,,,,,Online appointment booking at 250 bedded Tuberculosis Hospital,"Looking at 250 bedded Tuberculosis Hospital's website (250 beds), I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at 250 bedded Tuberculosis Hospital's website (250 beds), I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 250 beds that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:53
+General Pharmaceuticals Limited,Healthcare Provider,Dhaka,"Dhaka, 1207",https://generalpharma.com/,,info@generalpharma.com,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for General Pharmaceuticals Limited operations,General Pharmaceuticals Limited serves Dhaka as a healthcare provider,"Dear Management Team,
+
+General Pharmaceuticals Limited serves Dhaka as a healthcare provider. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:53
+Unique Pain & Paralysis Centre,Hospital,Dhaka,"Plot-23 Road 3, Dhaka, 1216",https://www.uppc-bd.org,+8801768377442,uppc.bd@gmail.com,https://www.facebook.com/UPPC.DHAKA.BD,,4,"Rule-based: 4/6 digital features missing (online reports / patient portal, mobile app, telemedicine / video consultation)",online appointment booking: yes; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: React / Next.js; doctors: 20; departments: 8; https: yes,Dr. Mokhlesur Rahman Siddiqui,Executive Director,siddiqui.physio@gmail.com,,,,Same-day digital reports for Unique Pain & Paralysis,"Looking at Unique Pain & Paralysis Centre's website (8 departments), I noticed patients still cannot download their reports online or use a mobile app","Dear Dr. Mokhlesur Rahman Siddiqui,
+
+Looking at Unique Pain & Paralysis Centre's website (8 departments), I noticed patients still cannot download their reports online or use a mobile app; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 8 departments that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:14:55
+Bangladesh Eye Hospital,Eye Care / Optometry,Dhaka,Dhaka,https://uttara.bdeyehospital.com/,"+88028933041, +8801787665944",info.uttara@bdeyehospital.com,https://www.facebook.com/BEH.BDEyeHospital,,5,"Rule-based: sizeable organisation (branches 11, doctors 265); 4/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: yes; online payment: no; live chat / WhatsApp: yes; tech: unknown; branches: 11; doctors: 265; copyright year: 2025; https: yes,Dr. Niaz Abdur-Rahman,Managing Director,md@uttara.bdeyehospital.com (predicted),,,Dr. Mahbubur Rahman Chowdhury - Chairman,Online appointment booking at Bangladesh Eye Hospital,"Looking at Bangladesh Eye Hospital's website (11 branches), I noticed patients still cannot book appointments online or download their reports online","Dear Dr. Niaz Abdur-Rahman,
+
+Looking at Bangladesh Eye Hospital's website (11 branches), I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 11 branches that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:00
+Royal Pharma,Pharmacy,Dhaka,Dhaka,https://royalpharmabd.com/,"+88001972268488, +88001744272488",info@royalpharmabd.com,,,3,"Rule-based: 6/6 digital features missing (online appointment booking, online reports / patient portal, mobile app); small buyer type",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: unknown; https: yes,,,,,,,Online appointment booking at Royal Pharma,"Looking at Royal Pharma's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at Royal Pharma's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:01
+National Heart Foundation Research ন্যাশনাল হার্ট ফাউন্ডেশন হসপিটাল,Hospital,Dhaka,"26 দারুস সালাম রোড, ঢাকা 1216, Dhaka",https://nhf.org.bd,+880258054708,info@nhf.org.bd,,,4,"Rule-based: 6/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: unknown; https: yes,,,,,,,Online appointment booking at National Heart Foundation Research,"Looking at National Heart Foundation Research ন্যাশনাল হার্ট ফাউন্ডেশন হসপিটাল's website, I noticed patients still cannot book appointments online or download t","Dear Management Team,
+
+Looking at National Heart Foundation Research ন্যাশনাল হার্ট ফাউন্ডেশন হসপিটাল's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:02
+Lubana General Hospital & Uttara Cardiac Center,Hospital,Dhaka,"House no 09 Sector 13, Gareeb-e-Nawaz Avenue, Dhaka, 1230",https://www.lubanahospital.com/,+880255085972,lubanahospitalbd@gmail.com,https://www.facebook.com/lubanahospitalofficial,,5,"Rule-based: sizeable organisation (departments 32); 4/6 digital features missing (mobile app, telemedicine / video consultation, online payment)",online appointment booking: yes; online reports / patient portal: yes; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: PHP; departments: 32; copyright year: 2025; https: yes,,,,,,,One system for Lubana General Hospital & operations,"Looking at Lubana General Hospital & Uttara Cardiac Center's website (32 departments), I noticed patients still cannot use a mobile app or consult a doctor by v","Dear Management Team,
+
+Looking at Lubana General Hospital & Uttara Cardiac Center's website (32 departments), I noticed patients still cannot use a mobile app or consult a doctor by video; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 32 departments that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:03
+NHN Gulshan Shasthoseba Kendra,Hospital,Dhaka,"House No: 19/20 House No: 19/20, Rd No 113/A, ঢাকা 1212, Dhaka",https://nhn-dab.org.bd/,+8801762093815,info@nhn-dab.org.bd,,,4,"Rule-based: 5/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)","online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; https: yes",Dr. M A Samad,CEO,md@nhn-dab.org.bd (predicted),,,,Online appointment booking at NHN Gulshan Shasthoseba Kendra,"Looking at NHN Gulshan Shasthoseba Kendra's website, I noticed patients still cannot book appointments online or download their reports online","Dear Dr. M A Samad,
+
+Looking at NHN Gulshan Shasthoseba Kendra's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:08
+Vision Eye Hospital,Hospital,Dhaka,"229, Dhaka",https://www.visioneyebd.org/,+8809610244123,info@visioneyebd.org,https://www.facebook.com/veh.bd,,4,"Rule-based: 4/6 digital features missing (online reports / patient portal, mobile app, telemedicine / video consultation)",online appointment booking: yes; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: unknown; copyright year: 2026; https: yes,Dr. Siddiqur Rahman,Managing Director,md@visioneyebd.org (predicted),,https://www.linkedin.com/company/vision-eye-hospital,Dr. Muhammad Moniruzzaman - Chairman; Dr. Masudul Hasan - Executive Director,Same-day digital reports for Vision Eye Hospital,"Looking at Vision Eye Hospital's website, I noticed patients still cannot download their reports online or use a mobile app","Dear Dr. Siddiqur Rahman,
+
+Looking at Vision Eye Hospital's website, I noticed patients still cannot download their reports online or use a mobile app; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:13
+Square Hospital,Hospital,Dhaka,"18/F Pantha Path, Dhaka, 1205",http://www.squarehospital.com/,+8809610010616,info@squarehospital.com,https://www.facebook.com/squarehospital,,4,"Rule-based: 4/6 digital features missing (online reports / patient portal, mobile app, telemedicine / video consultation)",online appointment booking: yes; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: yes; live chat / WhatsApp: no; tech: Angular; copyright year: 2022 (site looks unmaintained); https: no,,,,,https://www.linkedin.com/company/square-hospitals-ltd,,Same-day digital reports for Square Hospital,"Looking at Square Hospital's website, I noticed patients still cannot download their reports online or use a mobile app","Dear Management Team,
+
+Looking at Square Hospital's website, I noticed patients still cannot download their reports online or use a mobile app; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:15
+Dr Fazlul Haque Colorectal Hospital Ltd.,Hospital,Dhaka,"Shatmosjid Road, Dhaka",https://profdrakmfazlulhaque.com/,+8801755697173,info@profdrakmfazlulhaque.com,https://facebook.com/Prof.AKM.Fazlul.Haque,,4,"Rule-based: 4/6 digital features missing (online reports / patient portal, mobile app, telemedicine / video consultation)","online appointment booking: yes; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; copyright year: 2026; https: yes",,,,,,,Same-day digital reports for Dr Fazlul Haque Colorectal,"Looking at Dr Fazlul Haque Colorectal Hospital Ltd.'s website, I noticed patients still cannot download their reports online or use a mobile app","Dear Management Team,
+
+Looking at Dr Fazlul Haque Colorectal Hospital Ltd.'s website, I noticed patients still cannot download their reports online or use a mobile app; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:20
+Dr. Lina's Skin & Aesthetics,Clinic,Dhanmondi,"59, Delvistaa Fuljhuri, Level: 11 Satmasjid Road, Dhanmondi, Dhaka, 1209",https://drlinaskinclinic.com/,1790057724,info@drlinaskinclinic.com,,,4,"Rule-based: 4/6 digital features missing (online reports / patient portal, mobile app, telemedicine / video consultation)","online appointment booking: yes; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; https: yes",,,,,,,Same-day digital reports for Dr. Lina's Skin &,Looking at Dr,"Dear Management Team,
+
+Looking at Dr. Lina's Skin & Aesthetics's website, I noticed patients still cannot download their reports online or use a mobile app; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:38
+OGSB HOSPITAL ওজিএসবি হাসপাতাল,Hospital,Dhaka,"6/1, Dhaka, 1216",https://ogsbh-irch.ac.bd,+8801762044348,ogsbhospital@yahoo.com,https://www.facebook.com/OGSBHospital,,4,"Rule-based: 6/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: unknown; copyright year: 2026; https: yes,Prof. Farhana Dewan,Chairman,md@ogsbh-irch.ac.bd (predicted),,,,Online appointment booking at OGSB HOSPITAL ওজিএসবি হাসপাতাল,"Looking at OGSB HOSPITAL ওজিএসবি হাসপাতাল's website, I noticed patients still cannot book appointments online or download their reports online","Dear Prof. Farhana Dewan,
+
+Looking at OGSB HOSPITAL ওজিএসবি হাসপাতাল's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:41
+International Organization of Migrarion (IOM),Clinic,Gulshan,"UN House House 1, Road 88, Gulshan-2, Dhaka, 1212",https://bangladesh.iom.int/,+8801777761309,dhakaha@iom.int,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for International Organization of Migrarion operations,International Organization of Migrarion (IOM) serves Gulshan as a clinic,"Dear Management Team,
+
+International Organization of Migrarion (IOM) serves Gulshan as a clinic. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:41
+Kingston Hospital,Healthcare Provider,Dhaka,"51-54 Road-1, dhaka, 1216",https://kingstonhospital.com.bd,+8801952989866,kingstonhospital.bd@gmail.com,https://www.facebook.com/kingstonhospitalbd,,5,"Rule-based: sizeable organisation (beds 100); 4/6 digital features missing (online reports / patient portal, mobile app, telemedicine / video consultation)","online appointment booking: yes; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; beds: 100; https: yes",Dr. Rukhsana Pervin,Managing Director,md@kingstonhospital.com.bd (predicted),,,Major Abdus Salam Sarker - Chairman,Same-day digital reports for Kingston Hospital,"Looking at Kingston Hospital's website (100 beds), I noticed patients still cannot download their reports online or use a mobile app","Dear Dr. Rukhsana Pervin,
+
+Looking at Kingston Hospital's website (100 beds), I noticed patients still cannot download their reports online or use a mobile app; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 100 beds that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:15:59
+GUK EYE HOSPITAL,Hospital,Dhaka,"31 সড়ক ১৪, Dhaka",https://gukeyehospital.org/,+8801733368138,gukeyehospital@gmail.com,https://www.facebook.com/gukeyehospitalbogura,,4,"Rule-based: 5/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)","online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; beds: 80; https: yes",Md. Rashidul Islam,Managing Director,md@gukeyehospital.org (predicted),,https://www.linkedin.com/company/gram-unnayan-karma-guk,Dr. Khandaker Alamgir Hossain - Chairman,Online appointment booking at GUK EYE HOSPITAL,"Looking at GUK EYE HOSPITAL's website (80 beds), I noticed patients still cannot book appointments online or download their reports online","Dear Md. Rashidul Islam,
+
+Looking at GUK EYE HOSPITAL's website (80 beds), I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 80 beds that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:00
+Dhaka Central International Medical College & Hospital (Building 02),Hospital,Dhaka,"2/1 রিং রোড, Dhaka, 1207",https://dcimch.com/,+8809610910651,info@dcimch.com,https://www.facebook.com/pg,,5,"Rule-based: sizeable organisation (beds 500); 6/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)","online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: WordPress, PHP; beds: 500; copyright year: 2026; https: yes",Md. Motazzerul Islam,Chairman,md@dcimch.com (predicted),,https://bd.linkedin.com/company/dcimch,,Online appointment booking at Dhaka Central International Medical,"Looking at Dhaka Central International Medical College & Hospital (Building 02)'s website (500 beds), I noticed patients still cannot book appointments online o","Dear Md. Motazzerul Islam,
+
+Looking at Dhaka Central International Medical College & Hospital (Building 02)'s website (500 beds), I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 500 beds that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:10
+BRB Hospital,Hospital,Dhaka,"77 পান্থপথ, Dhaka, 1215",https://brbhospital.com,10647,info@brbhospital.com,https://www.facebook.com/brbhospitalslimited,,5,"Rule-based: sizeable organisation (beds 350, departments 45); 3/6 digital features missing (mobile app, telemedicine / video consultation, online payment)",online appointment booking: yes; online reports / patient portal: yes; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: PHP; beds: 350; departments: 45; copyright year: 2026; https: yes,Mr. Md. Parvez Rahman,Managing Director,md@brbhospital.com (predicted),,,Md. Mozibar Rahman - Chairman,One system for BRB Hospital operations,"Looking at BRB Hospital's website (350 beds, 45 departments), I noticed patients still cannot use a mobile app or consult a doctor by video","Dear Mr. Md. Parvez Rahman,
+
+Looking at BRB Hospital's website (350 beds, 45 departments), I noticed patients still cannot use a mobile app or consult a doctor by video; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. For a facility with 350 beds that usually means shorter reception queues and reports reaching patients the same day.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:12
+Monovubon Center,Healthcare Provider,Dhaka,"2/5, Block A, Dhaka, 1207",https://www.monovuboncenter.com/,+8801789788915,info@monovuboncenter.com,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for Monovubon Center operations,Monovubon Center serves Dhaka as a healthcare provider,"Dear Management Team,
+
+Monovubon Center serves Dhaka as a healthcare provider. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:12
+Shaheed Monsur Ali medical college and hospital,Hospital,Dhaka,"26 সড়ক ১০বি, Dhaka, 1230",http://www.smamedicalcollege-bd.com,+8809643100300,info@smamedicalcollege-bd.com,,,4,"Rule-based: 6/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: unknown; https: no,,,,,,,Online appointment booking at Shaheed Monsur Ali medical,"Looking at Shaheed Monsur Ali medical college and hospital's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at Shaheed Monsur Ali medical college and hospital's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:12
+Chum Wellness,Clinic,Dhaka,"9 রোড ৫, পিসিকালচার হাউজিং সোসাইটি, Dhaka, 1207",https://chumwellness.com,+8801739000501,info@chumwellness.com,https://www.facebook.com/chumwellnessofficial,,4,"Rule-based: 4/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)","online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: yes; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; copyright year: 2026; https: yes",,,,,https://www.linkedin.com/company/chumwellness,,Online appointment booking at Chum Wellness,"Looking at Chum Wellness's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at Chum Wellness's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:14
+Dhaka Fertility Center,Clinic,Dhaka,"44/7 পান্থপথ, Dhaka, 1205",https://dhakafertility.com/,+8801311925510,info@dhakafertility.com,https://www.facebook.com/dhakafertility,,4,"Rule-based: 5/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)","online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: WordPress, PHP; copyright year: 2026; https: yes",,,,,https://bd.linkedin.com/in/maruf-siddiqui-1a57706a,,Online appointment booking at Dhaka Fertility Center,"Looking at Dhaka Fertility Center's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at Dhaka Fertility Center's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:29
+Tooth Care,Dental Clinic,Shyamoli,"14/1 মিরপুর রোড, Shyamoli, Dhaka, 1207",https://toothcarebd.com/,1755430659,info@toothcarebd.com,https://www.facebook.com/tooth.care.bangladesh,,4,"Rule-based: 5/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: yes; tech: unknown; https: yes,,,,,https://www.linkedin.com/company/toothcarebd,,Online appointment booking at Tooth Care,"Looking at Tooth Care's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at Tooth Care's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:29
+Smile Scan CBCT & OPG Center,Healthcare Provider,Shyamoli,"14/1 মিরপুর রোড, Shyamoli, Dhaka, 1207",https://smilescan.bd/,,info@smilescan.bd,,,4,"Rule-based: 6/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: WordPress; https: yes,,,,,,,Online appointment booking at Smile Scan CBCT &,"Looking at Smile Scan CBCT & OPG Center's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at Smile Scan CBCT & OPG Center's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:30
+United Hospital,Hospital,Gulshan,"plot 15 Road 71, Gulshan, dhaka, bangladesh, 1212",https://www.uhlbd.com/,,info@uhlbd.com,,,4,"Rule-based: 6/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: unknown; https: yes,,,,,,,Online appointment booking at United Hospital,"Looking at United Hospital's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at United Hospital's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:30
+Comfort Hospital;Comfort Diagnostic Center,Hospital,Dhaka,"167/B Green Road, Dhaka",http://www.comfortbd.com/,+88028124990,ha-mim88@outlook.com,,,5,"Rule-based: sizeable organisation (doctors 110); 6/6 digital features missing (online appointment booking, online reports / patient portal, mobile app)",online appointment booking: no; online reports / patient portal: no; mobile app: no; telemedicine / video consultation: no; online payment: no; live chat / WhatsApp: no; tech: unknown; doctors: 110; https: no,,,,,,,Online appointment booking at Comfort Hospital;Comfort Diagnostic Center,"Looking at Comfort Hospital;Comfort Diagnostic Center's website, I noticed patients still cannot book appointments online or download their reports online","Dear Management Team,
+
+Looking at Comfort Hospital;Comfort Diagnostic Center's website, I noticed patients still cannot book appointments online or download their reports online; those requests run through the front desk and phone lines.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:34
+Unani and Ayrbedic medical college and hospital,Hospital,Mirpur,"Mirpur road-14, Dhaka, 1216",https://www.guamc.edu.bd/,,info@guamc.edu.bd,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for Unani and Ayrbedic medical operations,Unani and Ayrbedic medical college and hospital serves Mirpur as a hospital,"Dear Management Team,
+
+Unani and Ayrbedic medical college and hospital serves Mirpur as a hospital. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:34
+Aalok Diagnostic Center,Hospital,Mirpur,"Road-2, Block-B, Section-10, mirpur, 1216",https://www.aalokbd.com,+8801760527619,info@aalokbd.com,,,3,Rule-based: website not readable - scored on type only,,,,,,,,One system for Aalok Diagnostic Center operations,Aalok Diagnostic Center serves Mirpur as a hospital,"Dear Management Team,
+
+Aalok Diagnostic Center serves Mirpur as a hospital. Most facilities of this kind in Dhaka still run appointments, billing and lab reporting on separate tools or paper.
+
+Daffodil Software Ltd's Smart Hospital brings hospital management for patient records, appointments, billing, pharmacy, and laboratory into one system and connects to the tools you already run, so bookings, billing and reports stop being manual steps. The usual result is less manual work for your staff and faster service for patients.
+
+Would a 15–20 minute discovery call next week be useful, to see whether this fits your workflows?
+
+[Sender Name]
+[Title] | Daffodil Software Ltd.
+software@daffodil-bd.com | +8801713493026
+https://daffodilsoft.com/",2026-09-22 12:16:34

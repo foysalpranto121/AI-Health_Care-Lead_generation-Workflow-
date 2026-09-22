@@ -1,0 +1,948 @@
+{
+  "name": "Dhaka Healthcare Lead Generation & Decision Maker Finder",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-1",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "daily-schedule",
+      "name": "Daily Schedule (disabled - enable to automate)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        100
+      ],
+      "disabled": true,
+      "notes": "Runs the whole pipeline every weekday at 09:00 (workflow timezone Asia/Dhaka). Enable this node AND activate the workflow to automate; leave disabled to run manually."
+    },
+    {
+      "parameters": {
+        "jsCode": "// YOUR OFFER BRIEF - who you are, what you sell, whom to target. It drives the search targeting (node 1), the\n// decision-maker choice and fit score (node 9) and the personalised email (node 10).\n// Paste the contents of offer.md between the backticks. Free text is fine; optional \"## Target healthcare types\",\n// \"## Target areas\" and \"## Target decision makers\" bullet sections are parsed into lists (see offer.example.md).\n// Lines containing TODO and <!-- html comments --> are ignored. Empty brief = generic emails, no fit score.\n// n8n Cloud cannot read local files - to keep the brief elsewhere, fetch it with an HTTP Request node (e.g. a raw\n// GitHub / Google Docs export URL) placed before this one and replace OFFER_MARKDOWN with $json.data.\nconst OFFER_MARKDOWN = `\nAct as a B2B sales outreach specialist for Daffodil Software Ltd., a Bangladesh-based software and digital-transformation company established in 2001.\n\nWrite a concise, personalized cold email to a healthcare organization.\n\nAbout Daffodil Software:\n\n- We develop custom software, hospital-management systems, ERP, mobile apps, AI applications, cloud solutions, cybersecurity/SOC services, and software integrations.\n- Our healthcare solutions can unify patient records, appointments, billing, pharmacy, laboratory workflows, reporting, and operational analytics.\n- We help healthcare organizations reduce manual work, improve data accuracy, speed up patient service, and gain visibility across operations.\n- We can customize solutions around the hospital’s existing workflows and integrate with its current systems.\n\nProspect details:\n\n- Organization: [Hospital/clinic/diagnostic-centre name]\n- Recipient: [Name and job title]\n- Location: [City/country]\n- Known challenge, service, technology, or recent news: [Detail]\n- Desired call to action: [15–20 minute discovery call]\n\nRequirements:\n\n1. Write a specific subject line under 8 words.\n2. Open with a genuine personalized observation—not generic praise.\n3. Mention only the most relevant 1–2 Daffodil capabilities.\n4. Clearly explain a likely operational outcome for this organization.\n5. Avoid exaggerated claims, jargon, and long feature lists.\n6. Keep the email below 140 words.\n7. End with a low-pressure meeting request.\n8. Include this signature:\n   [Sender Name]\n   [Title] | Daffodil Software Ltd.\n   <software@daffodil-bd.com> | +8801713493026\n   <https://daffodilsoft.com/>\n\nabout comapnies :\n\nDaffodil Software Ltd. is a Bangladesh-based software development and digital-transformation company, established in 2001. It serves Bangladesh and international markets including the USA, UAE, and Malaysia, and positions itself as an official Odoo Partner with 42+ professionals. Its office is in Dhanmondi, Dhaka. Company profile\nFor lead generation, their strongest buyer profiles are organizations needing operational software: education institutions, hospitals, corporate businesses, retailers, manufacturers, finance, pharmaceutical firms, hospitality businesses, clubs, and event organizers. They show particular depth in education, healthcare, and ERP-led business automation. Official site\nTheir services:\n\n- Custom software and AI application development\n- Web, e-commerce, and mobile-app development\n- ERP consulting, implementation, and Odoo customization\n- IT outsourcing; IT infrastructure, cloud migration, and managed services\n- Cybersecurity monitoring / SOC-as-a-Service\n- Software-testing certification and quality assurance\n- System integration, APIs, data migration, and cloud deployment\nTheir ready-made products include business ERP/CRM, hospital management, school and university management, HR/payroll, AI education tools, AI lead/support automation, club ERP, campus payment/access cards, virtual-event management, study-abroad management, and restaurant ERP.\nUseful outreach angles:\n- “Replace disconnected spreadsheets and tools with a unified ERP/CRM.”\n- “Modernize university, school, or hospital operations with a purpose-built platform.”\n- “Deploy Odoo with custom workflows, integrations, and local implementation support.”\n- “Use AI to automate customer conversations, lead qualification, HR, or learning workflows.”\n- “Build a secure custom web/mobile product without hiring a full internal engineering team.”\nPublic contact: <software@daffodil-bd.com> · +880 1713-493026.\n\nDaffodil Software’s products include:\n\n- Smart Business 24 — ERP for accounting, inventory, CRM, HR, supply chain, and analytics\n- Smart Hospital — hospital management for patient records, appointments, billing, pharmacy, and laboratory\n- Eduvas School — school-management system\n- Eduvas University — university operations and administration platform\n- Smart HR — SaaS HR platform for recruitment, payroll, attendance, performance, and analytics\n- AI Professor — AI education assistant for quizzes, assignments, grading, course support, and learning content\n- Central AI — AI chat/lead-management platform for web, WhatsApp, Facebook, Instagram, CRM, and Odoo\n- AI HR Management — AI-enabled HR automation and workforce-planning platform\n- Club ERP — membership, accounting, events, guest management, and communication for clubs\n- IUMS — integrated university-management system\n- Study Abroad — management platform for international education consultancies\n- 1 Card — campus payments, access control, attendance, and library management\n- Virtual Gate — virtual-event platform for registration, tickets, booths, networking, and analytics\n- Smart Hospitality OS — restaurant ERP for sales, operations, staff, and business intelligence\n`;\nconst MAX_CHARS = 6000;   // keeps every AI call affordable - shorten the brief rather than raise this\nconst MIN_FIT_ALERT = 0;  // per-lead Telegram alerts only for Fit Score >= this (0 = alert on every lead); the run summary is always sent\n\nconst HEADING = /^\\s{0,3}#{1,6}\\s+(.*?)\\s*#*\\s*$/;\nconst BULLET = /^\\s*(?:[-*+]|\\d+[.)])\\s+(.*\\S)\\s*$/;\nconst lines = OFFER_MARKDOWN.replace(/<!--[\\s\\S]*?-->/g, '').split('\\n').filter(l => !/TODO/.test(l));\nconst hasOffer = lines.some(l => l.trim() && !HEADING.test(l));\nlet text = lines.join('\\n').trim();\nif (text.length > MAX_CHARS) text = text.slice(0, MAX_CHARS);\n\n// {heading: [lines]} - the three \"Target ...\" sections become lists\nconst sections = { '': [] };\nlet current = '';\nfor (const line of text.split('\\n')) {\n  const m = line.match(HEADING);\n  if (m) { current = m[1].trim(); sections[current] = sections[current] || []; }\n  else sections[current].push(line);\n}\nconst shortTerm = (s) => s.split(/\\s+[-–—:]\\s+|\\s*\\(/)[0].trim();     // 'hospital (private)' -> 'hospital'\nconst bullets = (ls) => ls.map(l => l.match(BULLET)).filter(Boolean).map(m => shortTerm(m[1]));\nconst pick = (re) => { for (const [h, ls] of Object.entries(sections)) if (re.test(h)) return bullets(ls); return []; };\nconst targetTypes = hasOffer ? pick(/target (healthcare )?(types|customers|segments)|ideal customer/i) : [];\nconst targetAreas = hasOffer ? pick(/target (areas|locations)/i) : [];\nconst targetTitles = hasOffer ? pick(/target (decision makers|titles|roles|buyers)|decision makers we want/i) : [];\n\nconst named = text.match(/^\\s*[-*]?\\s*(?:company\\s*)?name\\s*:\\s*(.+)$/im)\n  || text.match(/(?:for|on behalf of|represent(?:ing)?)\\s+((?:[A-Z][\\w&.\\-]*\\s+){0,4}(?:Ltd|Limited|Inc|LLC|PLC|Co)\\.?)/);\nconst companyName = hasOffer && named ? named[1].trim().replace(/\\.$/, '') : '';\n\nconst titles = targetTitles.join(', ')\n  || 'the commercial decision maker (Managing Director, CEO, Chairman, Head of Procurement / IT / Operations or similar)';\nconst profileBlock = `\\n--- OFFER PROFILE ---\\n${text}\\n--- END OFFER PROFILE ---`;\n\n// Appended to node 9's system prompt (extraction + fit) and node 10's (email). Keep in sync with lead_generator.py.\nconst extractorContext = !hasOffer ? '' :\n  ` OFFER PROFILE - you research on behalf of the company described below. When the site names several people, prefer decision makers with these titles: ${titles}. ` +\n  `Add fit_score ('1'-'5': how well this organisation matches the profile's target customers and could use its products or services) and fit_reason ` +\n  `(one sentence citing concrete evidence from their site - e.g. manual booking, no patient portal, many departments, multiple branches).` + profileBlock;\n\nconst writerContext = !hasOffer ? '' :\n  ` OFFER PROFILE - you write on behalf of the company described below. Open with ONE specific observation about this organisation ` +\n  `(a named service, department, branch, accreditation, technology or scale from the website excerpt), connect it to the ONE or TWO capabilities from the profile ` +\n  `that fit best and state the likely operational outcome for them, close with the profile's call to action and use its signature. ` +\n  `Follow the profile's own writing requirements (length, subject line, tone) wherever they differ from the defaults above; treat bracketed placeholders ` +\n  `such as [Name] or [Detail] as slots to fill from the lead data and leave sender placeholders like [Sender Name] exactly as written. ` +\n  `Never open with 'I hope this message finds you well' or similar filler; no generic praise.` + profileBlock;\n\nreturn [{ json: { hasOffer, companyName, targetTypes, targetAreas, targetTitles, offerText: text, extractorContext, writerContext, minFitAlert: MIN_FIT_ALERT } }];\n"
+      },
+      "id": "offer-profile",
+      "name": "0. Offer Profile",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "notes": "Paste offer.md here. Drives search targeting, decision-maker preference, fit score and the personalised email."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds ~30 search queries per run (area x category, shuffled) and emits each one for two search engines,\n// so there is a large enough candidate pool to end up with 50 NEW leads after de-duplication. Edit the lists below to retarget.\nconst defaultAreas = [\n  'Dhanmondi', 'Gulshan', 'Banani', 'Uttara', 'Mirpur', 'Mohakhali', 'Panthapath', 'Motijheel',\n  'Bashundhara', 'Badda', 'Tejgaon', 'Malibagh', 'Shyamoli', 'Mohammadpur', 'Wari', 'Khilgaon'\n];\nconst defaultCategories = [\n  'hospital', 'diagnostic center', 'clinic', 'pharmaceutical company', 'medical equipment supplier',\n  'dental clinic', 'eye hospital', 'physiotherapy center', 'maternity hospital', 'medical college hospital'\n];\n// The offer brief (node 0) can narrow the targeting: its \"Target areas\" / \"Target healthcare types\" lists win\nconst offer = $('0. Offer Profile').first().json;\nconst areas = offer.targetAreas && offer.targetAreas.length ? offer.targetAreas : defaultAreas;\nconst categories = offer.targetTypes && offer.targetTypes.length ? offer.targetTypes : defaultCategories;\n\nconst generalQueries = [\n  'list of private hospitals in Dhaka Bangladesh contact',\n  'top diagnostic centers in Dhaka contact email',\n  'pharmaceutical companies head office Dhaka Bangladesh contact',\n  'medical equipment importers Dhaka Bangladesh contact'\n];\nconst MAX_QUERIES = 30;\n\nconst combos = [];\nfor (const area of areas) {\n  for (const category of categories) {\n    combos.push(`${category} in ${area} Dhaka contact email phone`);\n  }\n}\n\n// Fisher-Yates shuffle: each run explores different area/category combinations and surfaces new leads\nfor (let i = combos.length - 1; i > 0; i--) {\n  const j = Math.floor(Math.random() * (i + 1));\n  [combos[i], combos[j]] = [combos[j], combos[i]];\n}\n\nconst queries = [...generalQueries, ...combos.slice(0, MAX_QUERIES - generalQueries.length)];\n\n// Every query is sent to BOTH engines (node 2 fetches one URL per item). Bing is read through its RSS output\n// (&format=rss: plain XML, direct target links) and returns the facility's own website far more often than\n// DuckDuckGo, which leans towards directory sites. If one engine throttles automated traffic the other keeps going.\nconst bingUrl = (q) => `https://www.bing.com/search?q=${encodeURIComponent(q)}&format=rss&cc=BD&setlang=en`;\nconst ddgUrl = (q) => `https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`;\n\nconst out = [];\nfor (const query of queries) {\n  out.push({ json: { query, engine: 'bing', url: bingUrl(query) } });\n  out.push({ json: { query, engine: 'duckduckgo', url: ddgUrl(query) } });\n}\nreturn out;"
+      },
+      "id": "config-node",
+      "name": "1. Search Query Generator (Dhaka)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://overpass-api.de/api/interpreter",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "dhaka-healthcare-leadgen/1.0 (n8n)"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "data",
+              "value": "[out:json][timeout:90];\n(\n  nwr[\"amenity\"~\"^(hospital|clinic|doctors|dentist|pharmacy)$\"][\"website\"](23.68,90.30,23.92,90.50);\n  nwr[\"healthcare\"][\"website\"](23.68,90.30,23.92,90.50);\n);\nout tags;"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "osm-overpass-lookup",
+      "name": "1b. OpenStreetMap Healthcare Lookup",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        560
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Free, keyless. Returns every hospital / clinic / diagnostic / dental / pharmacy facility inside the Dhaka bounding box (south,west,north,east) that has a website tagged in OpenStreetMap - with phone, email and address when mapped. Edit the bbox to retarget."
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1000
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "id": "free-search-scraper",
+      "name": "2. Web Search (Bing + DuckDuckGo)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse search responses into { title, snippet, url, domain, source } items. Node 2 fetched one Bing RSS feed\n// and one DuckDuckGo HTML page per query (auto-detected here by markup), so the pool is bigger and the run\n// survives one engine throttling automated traffic.\n//   Bing RSS:   <item><title>..</title><link>direct url</link><description>..</description></item>\n//   DuckDuckGo: <a class=\"result__a\" href=\"...\">Title</a> ... <a class=\"result__snippet\" ...>Snippet</a>\nconst decodeEntities = (s) => (s || '')\n  .replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g, '$1')\n  .replace(/<[^>]+>/g, '')\n  .replace(/&amp;/g, '&')\n  .replace(/&quot;/g, '\"')\n  .replace(/&#x27;|&#39;|&apos;/g, \"'\")\n  .replace(/&lt;/g, '<')\n  .replace(/&gt;/g, '>')\n  .replace(/&nbsp;/g, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst SKIP_DOMAINS = [\n  // search engines / social networks / Q&A\n  'duckduckgo.com', 'bing.com', 'microsoft.com', 'google.com', 'facebook.com', 'wikipedia.org', 'youtube.com',\n  'linkedin.com', 'instagram.com', 'twitter.com', 'x.com', 'quora.com', 'reddit.com', 'pinterest.com',\n  // directories / aggregators: they list companies but are not the company itself\n  'yelp.com', 'tripadvisor.com', 'justdial.com', 'yellowpages.com', 'mawbiz.com.bd', 'dhanmondi.bd',\n  'businesslist.com.bd', 'bdtradeinfo.com', 'cybo.com', 'yellowpagesbd.com', 'bangladeshyellowpages.com',\n  'medex.com.bd', 'doctorola.com', 'sasthyaseba.com', 'bdhospitals.com', 'hospitalsbd.com', 'kagoz.com',\n  'bestinmeds.com', 'infoisinfo.com.bd', 'deho.ai', 'khojkorun.com', 'doctorbd24.com', 'doctorbangladesh.com',\n  'investbangladesh.gov.bd'\n];\nconst DIRECTORY_HINT = /yellowpage|directory|listing|bizlist|businesslist|\\.blogspot\\.|wordpress\\.com/i;\n// A Dhaka healthcare lead mentions the city / country or lives on a .bd domain. Anything else is off-topic - or one\n// of the unrelated cached pages Bing serves when it suspects a bot - and is dropped before we scrape it.\nconst RELEVANT = /dhaka|bangladesh|\\.bd\\b|\\bbd\\b/i;\n// \"Top 10 ...\", \"... - Verified List\", \"Doctors List\", \"... Directory\" are aggregator pages, not a facility\n// Blog / guide articles (\"Maternity Leave in Bangladesh: Rules, Benefits\") and government portals that are not care providers\nconst ARTICLE_TITLE = /:\\s*(rules|guide|benefits|tips|how|what|why|everything)|^(how|what|why|when)\\b|\\b(guide|tips|explained)\\b/i;\nconst HEALTHCARE_HINT = /hospital|medical|health|clinic|diagnos|pharma|dental|physio|eye|maternity|cardiac/i;\nconst AGGREGATOR_TITLE = /\\b(top|best)\\s+\\d+\\b|\\blists?\\b|\\blistings?\\b|directory|\\bnear me\\b|^(top|best|leading)\\b[^|]*?\\b[a-z]+s\\s+in\\s+(dhaka|bangladesh)/i;   // \"Best Hospitals in Dhaka\" = a list\n\nconst isSkippedDomain = (domain) => !domain\n  || SKIP_DOMAINS.some(d => domain === d || domain.endsWith('.' + d))\n  || DIRECTORY_HINT.test(domain);\n\n// DDG wraps outbound links as //duckduckgo.com/l/?uddg=<encoded target>&rut=...\nconst unwrapDdg = (href) => {\n  let url = href.replace(/&amp;/g, '&').trim();\n  if (url.startsWith('//')) url = 'https:' + url;\n  if (url.includes('uddg=')) {\n    try { url = new URL(url).searchParams.get('uddg') || url; } catch (e) {}\n  }\n  return url;\n};\n\nconst results = [];\nconst push = (rawTitle, rawSnippet, url, source) => {\n  let domain;\n  try { domain = new URL(url).hostname.replace(/^www\\./, '').toLowerCase(); } catch (e) { return; }\n  if (isSkippedDomain(domain)) return;\n  const title = decodeEntities(rawTitle), snippet = decodeEntities(rawSnippet);\n  if (!RELEVANT.test(`${title} ${snippet} ${url}`) || AGGREGATOR_TITLE.test(title) || ARTICLE_TITLE.test(title)) return;\n  if (domain.endsWith('.gov.bd') && !HEALTHCARE_HINT.test(`${title} ${snippet} ${url}`)) return;   // ministry / investment portal\n  results.push({ json: { title, snippet, url, domain, source } });\n};\n\nconst rssItem = /<item>[\\s\\S]*?<title>([\\s\\S]*?)<\\/title>[\\s\\S]*?<link>([\\s\\S]*?)<\\/link>[\\s\\S]*?<description>([\\s\\S]*?)<\\/description>/g;\nconst ddgResult = /<a[^>]*class=\"result__a\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)<\\/a>[\\s\\S]*?<a[^>]*class=\"result__snippet\"[^>]*>([\\s\\S]*?)<\\/a>/g;\n\nfor (const item of $input.all()) {\n  const body = typeof item.json.data === 'string' ? item.json.data : '';\n  let match;\n  if (body.includes('<item>')) {\n    while ((match = rssItem.exec(body)) !== null) push(match[1], match[3], decodeEntities(match[2]), 'bing');\n  } else {\n    while ((match = ddgResult.exec(body)) !== null) push(match[2], match[3], unwrapDdg(match[1]), 'duckduckgo');\n  }\n}\n\n// Curated fallback so the pipeline still produces output when both search engines block automated traffic\nif (results.length < 5) {\n  const backupLeads = [\n    { title: \"Labaid Diagnostic Center Dhanmondi\", snippet: \"Managing Director: Dr. AM Shamim. Contact: info@labaidgroup.com\", url: \"https://labaid.com.bd\", domain: \"labaid.com.bd\", source: \"curated\" },\n    { title: \"Popular Diagnostic Centre Gulshan\", snippet: \"Managing Director: Dr. Mustafizur Rahman. Email: info@populardiagnostic.com\", url: \"https://populardiagnostic.com\", domain: \"populardiagnostic.com\", source: \"curated\" },\n    { title: \"Ibn Sina Hospital Dhanmondi\", snippet: \"Managing Director: Prof. Dr. Sadrul Islam. Contact: info@ibnsinatrust.com\", url: \"https://ibnsinatrust.com\", domain: \"ibnsinatrust.com\", source: \"curated\" },\n    { title: \"Square Hospitals Panthapath\", snippet: \"CEO: Mr. Esam Ebne Yousuf. Email: info@squarehospital.com\", url: \"https://squarehospital.com\", domain: \"squarehospital.com\", source: \"curated\" },\n    { title: \"Prescription Point Banani\", snippet: \"Chairman: Dr. Md. Abdul Majid. Contact: info@ppointbd.com\", url: \"https://ppointbd.com\", domain: \"ppointbd.com\", source: \"curated\" },\n    { title: \"Evercare Hospital Dhaka Bashundhara\", snippet: \"MD & CEO: Dr. Ratnadeep Chaskar. Contact: info.dhaka@evercarebd.com\", url: \"https://evercarebd.com\", domain: \"evercarebd.com\", source: \"curated\" },\n    { title: \"United Hospital Gulshan 2\", snippet: \"Managing Director: Mr. Faridur Rahman. Contact: info@uhlbd.com\", url: \"https://uhlbd.com\", domain: \"uhlbd.com\", source: \"curated\" },\n    { title: \"Asgar Ali Hospital Gendaria\", snippet: \"CEO: Prof. Dr. Zabrul SM. Email: info@asgaralihospital.com\", url: \"https://asgaralihospital.com\", domain: \"asgaralihospital.com\", source: \"curated\" },\n    { title: \"BRB Hospital Panthapath\", snippet: \"Managing Director: Mr. Mozibar Rahman. Email: info@brbhospital.com\", url: \"https://brbhospital.com\", domain: \"brbhospital.com\", source: \"curated\" },\n    { title: \"Incepta Pharmaceuticals Tejgaon\", snippet: \"Managing Director: Mr. Abdul Muktadir. Email: info@inceptapharma.com\", url: \"https://inceptapharma.com\", domain: \"inceptapharma.com\" }\n  ];\n\n  for (const item of backupLeads) {\n    results.push({ json: item });\n  }\n}\n\nreturn results;"
+      },
+      "id": "raw-lead-parser",
+      "name": "3. Extract Search Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Runs once. Input = the Overpass API answer from node 1b (or an error item when the API is unreachable).\n// Output = one candidate per facility that has a website, in the same shape node 3 emits, plus the structured\n// details OpenStreetMap already knows (phone, email, address, type) so nodes 8-11 can reuse them as verified facts.\nconst TYPE_LABELS = {\n  hospital: 'Hospital', clinic: 'Clinic', doctors: 'Doctors Chamber / Medical Practice', dentist: 'Dental Clinic',\n  pharmacy: 'Pharmacy', laboratory: 'Diagnostic Laboratory', centre: 'Healthcare Centre',\n  physiotherapist: 'Physiotherapy Center', optometrist: 'Eye Care / Optometry', blood_donation: 'Blood Bank',\n  rehabilitation: 'Rehabilitation Center', birthing_centre: 'Maternity Center'\n};\n// Keep in sync with node 1 - used to derive the area from the address (OSM rarely fills addr:suburb in Dhaka)\nconst AREAS = [\n  'Dhanmondi', 'Gulshan', 'Banani', 'Uttara', 'Mirpur', 'Mohakhali', 'Panthapath', 'Motijheel',\n  'Bashundhara', 'Badda', 'Tejgaon', 'Malibagh', 'Shyamoli', 'Mohammadpur', 'Wari', 'Khilgaon'\n];\nconst SOCIAL = /facebook\\.com|instagram\\.com|linkedin\\.com|youtube\\.com|twitter\\.com|^x\\.com$/i;\n\nconst results = [];\nfor (const item of $input.all()) {\n  const elements = Array.isArray(item.json.elements) ? item.json.elements : [];\n  for (const el of elements) {\n    const t = el.tags || {};\n    const tag = (k) => { const v = (t[k] || '').trim(); return /^n\\/a$/i.test(v) ? '' : v; };\n\n    let website = tag('website') || tag('contact:website');\n    const name = tag('name:en') || tag('name');\n    if (!website || !name) continue;\n    if (!/^https?:\\/\\//i.test(website)) website = 'https://' + website;\n    let domain;\n    try { domain = new URL(website).hostname.replace(/^www\\./, '').toLowerCase(); } catch (e) { continue; }\n    if (!domain || SOCIAL.test(domain)) continue;          // a Facebook page tagged as the website is not a lead site\n\n    const type = TYPE_LABELS[tag('healthcare') || tag('amenity')] || 'Healthcare Provider';\n    const street = [tag('addr:housenumber'), tag('addr:street')].filter(Boolean).join(' ');\n    const address = tag('addr:full') || [street, tag('addr:suburb'), tag('addr:city') || 'Dhaka', tag('addr:postcode')].filter(Boolean).join(', ');\n    const location = AREAS.find(a => address.toLowerCase().includes(a.toLowerCase())) || tag('addr:suburb') || 'Dhaka';\n    const phone = tag('phone') || tag('contact:phone') || tag('phone:mobile');\n    const email = tag('email') || tag('contact:email');\n    const snippet = ['OpenStreetMap record', type, address, phone && 'Phone ' + phone, email && 'Email ' + email].filter(Boolean).join(' · ');\n\n    results.push({ json: {\n      title: name, snippet, url: website, domain, source: 'openstreetmap',\n      known_type: type, known_location: location, known_address: address, known_phone: phone, known_email: email\n    } });\n  }\n}\nreturn results;\n"
+      },
+      "id": "osm-parse-leads",
+      "name": "3b. Parse OpenStreetMap Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "combine-candidates",
+      "name": "3c. Combine Candidates",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1100,
+        400
+      ],
+      "notes": "Search-engine candidates (input 1) + OpenStreetMap candidates (input 2). With execution order v1 it still runs when one branch returned nothing."
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "domain",
+        "options": {}
+      },
+      "id": "remove-duplicates-filter",
+      "name": "4. Remove Duplicates (this run)",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "google-sheets-read-existing",
+      "name": "5. Read Existing Leads (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        1540,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "google-sheets-cred-id",
+          "name": "Google Sheets Account"
+        }
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Runs once. Input = rows already in the Google Sheet (or one empty/error item when the sheet is empty\n// or unreachable). Candidates come from node 4. Output = up to LIMIT leads whose website is NOT in the sheet yet.\nconst LIMIT = 50;\n\nconst toDomain = (value) => {\n  if (!value) return '';\n  const raw = String(value).trim();\n  try {\n    return new URL(/^https?:\\/\\//i.test(raw) ? raw : 'https://' + raw).hostname.replace(/^www\\./, '').toLowerCase();\n  } catch (e) {\n    return raw.replace(/^https?:\\/\\//i, '').replace(/^www\\./, '').split('/')[0].toLowerCase();\n  }\n};\n\nconst known = new Set();\nfor (const row of $input.all()) {\n  const domain = toDomain(row.json['Website']);\n  if (domain) known.add(domain);\n}\n\nconst fresh = [];\nfor (const item of $('4. Remove Duplicates (this run)').all()) {\n  const domain = toDomain(item.json.domain || item.json.url);\n  if (!domain || known.has(domain)) continue;\n  known.add(domain);\n  fresh.push({ json: { ...item.json, domain } });\n  if (fresh.length >= LIMIT) break;\n}\n\nreturn fresh;"
+      },
+      "id": "skip-known-limit-50",
+      "name": "6. Skip Known Leads & Limit to 50",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "id": "company-website-fetcher",
+      "name": "7. Fetch Company Homepage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        300
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Runs once for all items. Input = homepage responses from node 7 (one per lead, errors included), paired by\n// index with the leads from node 6. For each lead this node:\n//   1. cleans the homepage text,\n//   2. follows up to 3 same-site executive pages (\"Message from Chairman / Managing Director / CEO\", board, management,\n//      about) plus the contact page - in Bangladesh the executives' names sit on those pages, signed at the bottom,\n//   3. pulls emails, phones, LinkedIn and Facebook links out of the raw HTML,\n// so the OpenAI step gets every signal available.\nconst leads = $('6. Skip Known Leads & Limit to 50').all();\nconst UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';\nconst MAX_EXTRA_PAGES = 4;   // up to 3 executive / management pages + the contact page\nconst MAX_PEOPLE_PAGES = 3;\nconst CONCURRENCY = 5;\n\n// n8n exposes an HTTP helper inside Code nodes; if it is missing we simply skip the extra pages.\nconst http = (() => {\n  try { if (this && this.helpers && typeof this.helpers.httpRequest === 'function') return this.helpers; } catch (e) {}\n  try { if (typeof helpers !== 'undefined' && helpers && typeof helpers.httpRequest === 'function') return helpers; } catch (e) {}\n  return null;\n})();\n\nconst decodeEntities = (s) => (s || '')\n  .replace(/&amp;/g, '&')\n  .replace(/&nbsp;/g, ' ')\n  .replace(/&quot;/g, '\"')\n  .replace(/&#x27;|&#39;/g, \"'\")\n  .replace(/&lt;/g, '<')\n  .replace(/&gt;/g, '>');\n\nconst htmlToText = (html) => decodeEntities((html || '')\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n  .replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, ' ')\n  .replace(/<[^>]+>/g, ' '))\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst unique = (arr) => [...new Set(arr)];\n\nconst extractSignals = (html) => {\n  const text = decodeEntities(html || '');\n  const emails = unique([\n    ...(text.match(/href=[\"']mailto:([^\"'?]+)/gi) || []).map(m => m.replace(/href=[\"']mailto:/i, '')),\n    ...(text.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}/gi) || [])\n  ].map(e => e.trim().toLowerCase()))\n    .filter(e => !/\\.(png|jpe?g|gif|svg|webp|css|js)$/.test(e) && !/example\\.|sentry\\.|wixpress|yourdomain|domain\\.com|email\\.com/.test(e));\n\n  const phones = unique([\n    ...(text.match(/href=[\"']tel:([^\"']+)/gi) || []).map(m => m.replace(/href=[\"']tel:/i, '')),\n    ...(text.match(/(?:\\+?880|0)?[\\s-]?1[3-9]\\d{2}[\\s-]?\\d{3}[\\s-]?\\d{3}\\b/g) || []),        // BD mobile\n    ...(text.match(/(?:\\+?880|0)?[\\s-]?2[\\s-]?\\d{4}[\\s-]?\\d{3,4}\\b/g) || []),                // Dhaka landline\n    ...(text.match(/\\b1[06]\\d{3}\\b/g) || [])                                                 // 5-digit hotlines\n  ].map(p => p.trim()));\n\n  const linkedin = unique((text.match(/https?:\\/\\/(?:[a-z]{2,3}\\.)?linkedin\\.com\\/(?:in|company)\\/[a-z0-9_%.-]+/gi) || []));\n  const facebook = unique((text.match(/https?:\\/\\/(?:www\\.|m\\.)?(?:facebook|fb)\\.com\\/[a-z0-9_.-]+/gi) || [])\n    .filter(u => !/\\/(sharer|share|plugins|dialog|login|tr\\b)/i.test(u)));\n\n  return { emails: emails.slice(0, 10), phones: phones.slice(0, 10), linkedin: linkedin.slice(0, 5), facebook: facebook.slice(0, 3) };\n};\n\n// Digital-maturity checks on the prospect's own site: hard evidence for the fit score and a specific email opener\n// (\"your site still takes appointments by phone only ...\"). Keep in sync with lead_generator.py.\nconst FEATURE_CHECKS = [\n  ['online appointment booking', /href=[\"'][^\"']*(?:appointment|booking|book-now)|online appointment|book (?:an )?appointment online|appointment form/i],\n  ['online reports / patient portal', /patient portal|online report|report download|download (?:your |lab )?reports?|view (?:your )?reports? online|e-?reports?\\b|report portal/i],\n  ['mobile app', /play\\.google\\.com|apps\\.apple\\.com|app store|google play|download (?:our|the) app/i],\n  ['telemedicine / video consultation', /telemedicine|tele-?health|video consult|online consult(?:ation)?|virtual consult/i],\n  ['online payment', /bkash|nagad|sslcommerz|online payment|pay online|pay now/i],\n  ['live chat / WhatsApp', /wa\\.me\\/|whatsapp|tawk\\.to|livechat|live chat|m\\.me\\//i]\n];\nconst TECH_CHECKS = [\n  ['WordPress', /wp-content|wp-includes|content=[\"']WordPress/i], ['Wix', /wixstatic|wix\\.com|_wix/i], ['Joomla', /joomla/i],\n  ['Drupal', /drupal/i], ['Blogger', /blogger\\.com|blogspot/i], ['Squarespace', /squarespace/i],\n  ['React / Next.js', /__NEXT_DATA__|\\/_next\\/|data-reactroot/i], ['Angular', /ng-version/i], ['Laravel', /laravel_session/i],\n  ['ASP.NET', /__VIEWSTATE|\\.aspx\\b/i], ['PHP', /\\.php\\b/i]\n];\n// (?<!\\d) keeps the tail of a phone number (\"...896433 DEPARTMENTS\") from being read as a count\nconst COUNT_CHECKS = [\n  ['beds', /(?<!\\d)(\\d{2,4})\\s*[-+]?\\s*(?:bedded|beds?)\\b/gi], ['branches', /(?<!\\d)(\\d{1,3})\\s*\\+?\\s*branches/gi],\n  ['doctors', /(?<!\\d)(\\d{2,4})\\s*\\+?\\s*(?:doctors|consultants|physicians|specialists)/gi], ['departments', /(?<!\\d)(\\d{1,3})\\s*\\+?\\s*departments/gi]\n];\nconst COPYRIGHT = /(?:©|&copy;|copyright)[^0-9<]{0,40}(?:(?:19|20)\\d\\d\\s*[-–]\\s*)?((?:19|20)\\d\\d)/gi;\n\nconst extractWebsiteSignals = (html, url) => {\n  const page = decodeEntities(html || '');\n  if (!page) return { summary: '', present: [], missing: [] };\n  const text = htmlToText(page);\n  const present = FEATURE_CHECKS.filter(([, re]) => re.test(page)).map(([label]) => label);\n  const missing = FEATURE_CHECKS.map(([label]) => label).filter(l => !present.includes(l));\n  const tech = TECH_CHECKS.filter(([, re]) => re.test(page)).map(([label]) => label).slice(0, 3);\n  const parts = FEATURE_CHECKS.map(([label]) => `${label}: ${present.includes(label) ? 'yes' : 'no'}`);\n  parts.push(`tech: ${tech.length ? tech.join(', ') : 'unknown'}`);\n  for (const [label, re] of COUNT_CHECKS) {\n    const nums = [...text.matchAll(re)].map(m => parseInt(m[1], 10)).filter(n => n < 10000);\n    if (nums.length) parts.push(`${label}: ${Math.max(...nums)}`);\n  }\n  const years = [...page.matchAll(COPYRIGHT)].map(m => parseInt(m[1], 10));\n  if (years.length) {\n    const latest = Math.max(...years);\n    parts.push(`copyright year: ${latest}${latest < new Date().getFullYear() - 1 ? ' (site looks unmaintained)' : ''}`);\n  }\n  parts.push(`https: ${/^https:\\/\\//i.test(url || '') ? 'yes' : 'no'}`);\n  return { summary: parts.join('; '), present, missing };\n};\n\n// Rank same-site links: executive messages (3) > board / management / leadership (2) > about (1); skip department,\n// service and doctor-directory pages (\"/department/pain-management\" is not a management page) and pick the contact page.\nconst LINK_SCORES = [\n  [3, /message|speech|desk[-_ ]of|chairman|managing[-_ ]?director|\\bmd\\b|\\bceo\\b|founder/i],\n  [2, /board|management|leadership|our[-_ ]?team|directors|executives|administration|governing/i],\n  [1, /about|profile|who[-_ ]we[-_ ]are|overview/i]\n];\nconst NEGATIVE_LINK = /\\/(departments?|services?|treatments?|packages?|doctors?|consultants?|news|events?|gallery|blog|careers?|jobs?)\\/|\\/dr-|appointment|login|register|\\.(xml|json)$/i;\nconst CONTACT = /contact/i;\nconst findExtraLinks = (html, baseUrl) => {\n  let baseHost;\n  try { baseHost = new URL(baseUrl).hostname.replace(/^www\\./, ''); } catch (e) { return []; }\n  const people = new Map(), contact = [];\n  const linkRegex = /<a[^>]+href=[\"']([^\"'#]+)[\"'][^>]*>([\\s\\S]*?)<\\/a>/gi;\n  let m;\n  while ((m = linkRegex.exec(html || '')) !== null) {\n    let u;\n    try { u = new URL(m[1], baseUrl); } catch (e) { continue; }\n    if (u.hostname.replace(/^www\\./, '') !== baseHost) continue;\n    if (/\\.(pdf|jpe?g|png|gif|zip|docx?)$/i.test(u.pathname)) continue;\n    u.hash = '';\n    if (u.href.replace(/\\/$/, '') === baseUrl.replace(/\\/$/, '')) continue;\n    const haystack = u.pathname + ' ' + htmlToText(m[2]);\n    if (CONTACT.test(haystack)) { if (!contact.includes(u.href)) contact.push(u.href); continue; }\n    if (NEGATIVE_LINK.test(haystack)) continue;\n    const score = Math.max(0, ...LINK_SCORES.filter(([, re]) => re.test(haystack)).map(([s]) => s));\n    if (score > (people.get(u.href) || 0)) people.set(u.href, score);\n  }\n  const ranked = [...people.entries()].sort((a, b) => b[1] - a[1]).map(([url]) => url);\n  return [...ranked.slice(0, MAX_PEOPLE_PAGES), ...contact.slice(0, 1)].slice(0, MAX_EXTRA_PAGES);\n};\n\n// Text around every executive title on the fetched pages - the exact evidence the AI needs, whatever got truncated.\n// Same title list as lead_generator.py (longest first so \"Founding Chairman\" wins over \"Chairman\").\nconst EXEC_TITLES = ['Founder & Managing Director', 'Founder and Managing Director', 'Chairman & Managing Director', 'Chairman and Managing Director',\n  'Deputy Managing Director', 'Managing Director', 'MD & CEO', 'Chief Executive Officer', 'CEO', 'Founder & Chairman', 'Founding Chairman',\n  'Chairman', 'Vice Chairman', 'Chief Operating Officer', 'Executive Director', 'Director General', 'Medical Director', 'Chief Medical Officer',\n  'Director of Operations', 'Director Operations', 'Director (Hospital)', 'Head of Operations', 'General Manager', 'Chief Information Officer',\n  'Head of IT', 'IT Manager', 'Head of Procurement', 'Procurement Manager'];\nconst EXEC_TITLE_RE = new RegExp('(?<![A-Za-z])(' + EXEC_TITLES.sort((a, b) => b.length - a.length).map(t => t.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')).join('|') + ')(?![A-Za-z])', 'gi');\nconst executiveMentions = (text, window = 120, limit = 8) => {\n  const out = []; let lastEnd = -1, m;\n  EXEC_TITLE_RE.lastIndex = 0;\n  while ((m = EXEC_TITLE_RE.exec(text)) !== null && out.length < limit) {\n    if (m.index < lastEnd) continue;\n    const start = Math.max(0, m.index - window), end = Math.min(text.length, m.index + m[0].length + window);\n    const snippet = text.slice(start, end).trim();\n    if (!/[A-Z][a-z]+\\s+[A-Z]/.test(snippet)) continue;      // no capitalised words nearby = a nav / heading mention\n    out.push((start ? '…' : '') + snippet + (end < text.length ? '…' : ''));\n    lastEnd = end;\n  }\n  return out.join(' | ');\n};\n\n// Executive messages are signed at the bottom, so the AI gets the head AND the tail of every page\nconst excerpt = (text, head, tail) => text.length <= head + tail ? text : `${text.slice(0, head)} … ${text.slice(-tail)}`;\n\nconst MAX_ONLINE_LOOKUPS = 20;   // per execution: LinkedIn / web searches for the decision maker when the site names nobody\nlet onlineLookups = 0;\n\n// Why a site gave us nothing - shown in the Website Signals column and given to the AI\nconst PARKED = /defaultwebpage\\.cgi|domain is parked|coming soon|under construction|index of \\/|buy this domain|website is temporarily|account suspended/i;\nconst META_REFRESH = /<meta[^>]+http-equiv=[\"']?refresh[\"']?[^>]+content=[\"']?\\s*\\d+\\s*;\\s*url=([^\"'>\\s]+)/i;\nconst statusFromError = (msg) => {\n  const m = String(msg || '');\n  if (/ENOTFOUND|getaddrinfo|EAI_AGAIN/i.test(m)) return 'dns failure (domain no longer exists)';\n  if (/403|401|429|503/.test(m)) return 'http ' + (m.match(/40[13]|429|503/) || ['403'])[0] + ' (blocks automated visits)';\n  if (/50\\d/.test(m)) return 'http ' + m.match(/50\\d/)[0] + ' (server error)';\n  if (/404/.test(m)) return 'http 404';\n  if (/timeout|ETIMEDOUT|ECONNRESET|ECONNREFUSED/i.test(m)) return 'timeout';\n  return m ? 'connection error (' + m.slice(0, 40) + ')' : 'no response';\n};\n\nconst fetchPage = async (url) => (await fetchPageWithStatus(url)).html;\nconst fetchPageWithStatus = async (url, hops = 0) => {\n  if (!http) return { html: '', status: 'no http helper', finalUrl: url };\n  let body = '';\n  try {\n    const res = await http.httpRequest({\n      url, method: 'GET', timeout: 8000, json: false, skipSslCertificateValidation: true,\n      headers: { 'User-Agent': UA, 'Accept': 'text/html,*/*' }\n    });\n    body = typeof res === 'string' ? res : (res && typeof res.body === 'string') ? res.body : (res ? JSON.stringify(res) : '');\n  } catch (e) {\n    return { html: '', status: statusFromError(e && e.message), finalUrl: url };\n  }\n  const refresh = body.slice(0, 4000).match(META_REFRESH);\n  if (refresh && body.length < 6000 && hops < 2) {                 // tiny page whose only job is to send visitors elsewhere\n    let target;\n    try { target = new URL(decodeEntities(refresh[1]), url).href; } catch (e) { target = ''; }\n    if (target && !PARKED.test(target)) return fetchPageWithStatus(target, hops + 1);\n  }\n  if (PARKED.test(body.slice(0, 6000)) && body.length < 6000) return { html: '', status: 'parked / default page (site not live)', finalUrl: url };\n  return { html: body, status: 'ok', finalUrl: url };\n};\n\n// When the company's own pages name nobody: LinkedIn profiles first (\"Md. Hasan - Managing Director - Asgar Ali\n// Hospital | LinkedIn\"), then ordinary search snippets. Uses Bing's RSS feed, DuckDuckGo's HTML page as fallback.\nconst COMPANY_STOPWORDS = new Set(['hospital', 'hospitals', 'clinic', 'limited', 'ltd', 'centre', 'center', 'medical', 'diagnostic', 'general',\n  'specialized', 'specialised', 'private', 'bangladesh', 'dhaka', 'college', 'plc', 'group', 'trust', 'foundation', 'health', 'care',\n  'healthcare', 'international', 'research', 'institute', 'services', 'pharma', 'pharmaceuticals']);\nconst LINKEDIN_TITLE = /^(.+?)\\s+[-–|]\\s+(.+?)\\s+[-–|]\\s+(.+?)\\s*\\|\\s*LinkedIn/i;      // Name - Title - Company | LinkedIn\nconst LINKEDIN_AT = /^(.+?)\\s+[-–]\\s+(.+?)\\s+(?:at|@)\\s+(.+?)\\s*(?:[-|]\\s*LinkedIn)?$/i;   // Name - Title at Company\nconst rawSearch = async (query) => {\n  const items = [];\n  try {\n    const rss = await fetchPage(`https://www.bing.com/search?q=${encodeURIComponent(query)}&format=rss&cc=BD&setlang=en`);\n    const re = /<item>[\\s\\S]*?<title>([\\s\\S]*?)<\\/title>[\\s\\S]*?<link>([\\s\\S]*?)<\\/link>[\\s\\S]*?<description>([\\s\\S]*?)<\\/description>/g;\n    let m;\n    while ((m = re.exec(rss)) !== null) items.push([htmlToText(m[1]), decodeEntities(m[2]).trim(), htmlToText(m[3])]);\n  } catch (e) {}\n  if (items.length) return items;\n  try {\n    const page = await fetchPage(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`);\n    const re = /<a[^>]*class=\"result__a\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)<\\/a>[\\s\\S]*?<a[^>]*class=\"result__snippet\"[^>]*>([\\s\\S]*?)<\\/a>/g;\n    let m;\n    while ((m = re.exec(page)) !== null) {\n      let url = m[1].replace(/&amp;/g, '&').trim();\n      if (url.startsWith('//')) url = 'https:' + url;\n      try { url = new URL(url).searchParams.get('uddg') || url; } catch (e) {}\n      items.push([htmlToText(m[2]), url, htmlToText(m[3])]);\n    }\n  } catch (e) {}\n  return items;\n};\nconst lookupOnline = async (company) => {\n  const tokens = (company.toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !COMPANY_STOPWORDS.has(w)).slice(0, 3);\n  if (!tokens.length) return null;\n  const mentions = (text) => tokens.some(t => String(text || '').toLowerCase().includes(t));\n  const queries = [`\"${company}\" (managing director OR chairman OR ceo) site:linkedin.com/in`, `\"${company}\" managing director OR chairman OR \"chief executive\"`];\n  for (let step = 0; step < queries.length; step++) {\n    for (const [title, url, snippet] of await rawSearch(queries[step])) {\n      if (url.includes('linkedin.com/in/')) {\n        const m = title.match(LINKEDIN_TITLE) || title.match(LINKEDIN_AT);\n        const execTitle = m && (m[2].match(EXEC_TITLE_RE) || [])[0];\n        if (m && execTitle && mentions(m[3])) return { name: m[1].trim(), title: execTitle, linkedin: url.split('?')[0], source: 'LinkedIn search result' };\n      } else if (step === 1 && mentions(title + ' ' + snippet)) {\n        const hit = (title + '. ' + snippet).match(/([A-Z][\\w.'-]*(?:\\s+[A-Z][\\w.'-]*){1,4}),?\\s+(?:the\\s+)?(Managing Director|Chairman|Chief Executive Officer|CEO|Executive Director|Medical Director)/);\n        if (hit) return { name: hit[1].trim(), title: hit[2], linkedin: '', source: 'search snippet' };\n      }\n    }\n  }\n  return null;\n};\n\nconst items = $input.all();\nconst out = new Array(items.length);\n\nfor (let start = 0; start < items.length; start += CONCURRENCY) {\n  await Promise.all(items.slice(start, start + CONCURRENCY).map(async (item, offset) => {\n    const i = start + offset;\n    const lead = (leads[i] && leads[i].json) || {};\n    let homepageHtml = typeof item.json.data === 'string' ? item.json.data : '';\n    const fetchError = item.json.error ? String(item.json.error.message || item.json.error) : '';\n    let siteStatus = homepageHtml ? 'ok' : statusFromError(fetchError);\n    let siteUrl = lead.url || '';\n    if (homepageHtml && homepageHtml.length < 6000 && (META_REFRESH.test(homepageHtml.slice(0, 4000)) || PARKED.test(homepageHtml))) {\n      const followed = await fetchPageWithStatus(siteUrl);          // node 7 does not follow meta-refresh redirects\n      homepageHtml = followed.html; siteStatus = followed.status;\n      if (followed.html && followed.finalUrl !== siteUrl) { siteStatus = 'ok (redirects to ' + followed.finalUrl.replace(/^https?:\\/\\/(www\\.)?/, '').split('/')[0] + ')'; siteUrl = followed.finalUrl; }\n    }\n\n    const extraUrls = (http && homepageHtml) ? findExtraLinks(homepageHtml, siteUrl) : [];\n    const extraHtml = await Promise.all(extraUrls.map(fetchPage));\n\n    const allHtml = [homepageHtml, ...extraHtml].join('\\n');\n    const fullText = [homepageHtml, ...extraHtml].filter(Boolean).map(htmlToText).join('\\n');\n    const signals = extractSignals(allHtml);\n    const website = extractWebsiteSignals(allHtml, siteUrl);\n    if (!homepageHtml) website.summary = 'website: ' + siteStatus;      // tells the reader WHY there is no page evidence\n    const mentionsText = executiveMentions(fullText);\n    let lookup = null;\n    if (!mentionsText && http && onlineLookups < MAX_ONLINE_LOOKUPS) { onlineLookups++; lookup = await lookupOnline(lead.title || ''); }\n\n    const sections = [];\n    if (homepageHtml) sections.push('[Homepage] ' + excerpt(htmlToText(homepageHtml), 2000, 400));\n    extraUrls.forEach((u, k) => { if (extraHtml[k]) sections.push('[' + u + '] ' + excerpt(htmlToText(extraHtml[k]), 900, 600)); });\n\n    out[i] = {\n      json: {\n        company_url: siteUrl,                                      // the final site after redirects\n        site_status: siteStatus,\n        company_domain: lead.domain || '',\n        search_title: lead.title || 'Dhaka Healthcare Facility',\n        search_snippet: lead.snippet || '',\n        scraped_text: sections.join('\\n\\n') || lead.snippet || '',\n        pages_fetched: [homepageHtml ? siteUrl : '', ...extraUrls.filter((u, k) => extraHtml[k])].filter(Boolean).join(', '),\n        found_emails: signals.emails.join(', '),\n        found_phones: signals.phones.join(', '),\n        found_linkedin: signals.linkedin.join(', '),\n        found_facebook: signals.facebook.join(', '),\n        fetch_error: fetchError,\n        website_signals: website.summary,\n        executive_mentions: mentionsText,\n        online_lookup: lookup ? `${lookup.name} - ${lookup.title} (${lookup.source}) ${lookup.linkedin}`.trim() : '',\n        online_lookup_linkedin: lookup ? lookup.linkedin : '',\n        features_present: website.present.join(', '),\n        features_missing: website.missing.join(', '),\n        // Structured facts that came with the candidate (OpenStreetMap) - reused by the AI prompt and as fallbacks in node 11\n        source: lead.source || 'web search',\n        known_type: lead.known_type || '',\n        known_location: lead.known_location || '',\n        known_address: lead.known_address || '',\n        known_phone: lead.known_phone || '',\n        known_email: lead.known_email || '',\n        known_facts: [\n          lead.known_address && 'address: ' + lead.known_address,\n          lead.known_phone && 'phone: ' + lead.known_phone,\n          lead.known_email && 'email: ' + lead.known_email\n        ].filter(Boolean).join('; ')\n      },\n      pairedItem: { item: i }\n    };\n  }));\n}\n\nreturn out;"
+      },
+      "id": "text-cleaner",
+      "name": "8. Extract Page Text & Contact Signals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"temperature\": 0.1,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    { \"role\": \"system\", \"content\": {{ JSON.stringify(\"You are an expert B2B healthcare intelligence researcher covering Dhaka, Bangladesh (hospitals, diagnostic centers, clinics, pharmaceutical companies, medical equipment suppliers). You receive a search result, text scraped from the organisation's website (homepage plus about/management/contact pages) and lists of emails, phone numbers and social links found in the raw HTML. Executive names usually appear at the END of 'Message from Chairman / Managing Director / CEO' pages as a signature (e.g. 'Sincerely, Dr. X Y, Managing Director') or on board / management pages - read the tail of each page carefully; when a title lists several people over time (a history of directors), the current holder is the one signing the message or the last one listed. If a name appears only in Bengali script, transliterate it into English and add the Bengali original in brackets. An online lookup result (LinkedIn) may be used for the decision maker when the site names nobody - then set decision_maker_linkedin to that profile URL. Extract every detail you can about the organisation and its key decision maker (Managing Director, CEO, Chairman, Medical Director, Head of Operations, General Manager, Procurement Manager or similar). Rules: use only information present in the input; return an empty string when something is not available; never invent names or phone numbers. decision_maker_email may be predicted from the company's email pattern (e.g. md@company-domain) only when no direct email is found - then append ' (predicted)' to it. other_decision_makers lists additional executives as 'Name - Title' separated by '; '. key_services is a short comma-separated summary. Respond strictly with a JSON object using exactly these keys: {\\\"company_name\\\": \\\"\\\", \\\"healthcare_type\\\": \\\"\\\", \\\"dhaka_location\\\": \\\"\\\", \\\"full_address\\\": \\\"\\\", \\\"contact_phone\\\": \\\"\\\", \\\"generic_email\\\": \\\"\\\", \\\"facebook_page\\\": \\\"\\\", \\\"key_services\\\": \\\"\\\", \\\"decision_maker_name\\\": \\\"\\\", \\\"decision_maker_title\\\": \\\"\\\", \\\"decision_maker_email\\\": \\\"\\\", \\\"decision_maker_phone\\\": \\\"\\\", \\\"decision_maker_linkedin\\\": \\\"\\\", \\\"other_decision_makers\\\": \\\"\\\", \\\"fit_score\\\": \\\"\\\", \\\"fit_reason\\\": \\\"\\\"}\" + $('0. Offer Profile').first().json.extractorContext) }} },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify(\"Company URL: \" + $json.company_url + \" | Source: \" + $json.source + \" | Known structured facts (already verified, reuse them): \" + ($json.known_facts || \"none\") + \" | Search title: \" + $json.search_title + \" | Search snippet: \" + $json.search_snippet + \" | Pages fetched: \" + $json.pages_fetched + \" | Emails found in HTML: \" + $json.found_emails + \" | Phones found in HTML: \" + $json.found_phones + \" | LinkedIn links found: \" + $json.found_linkedin + \" | Facebook links found: \" + $json.found_facebook + \" | Website signals (deterministic checks of their HTML - cite these in fit_reason): \" + ($json.website_signals || \"not available\") + \" | Executive mentions (text around every executive title found on their pages - names are usually right before the title): \" + ($json.executive_mentions || \"none found\") + \" | Online lookup (LinkedIn / web search for this company's executives): \" + ($json.online_lookup || \"not performed or nothing found\") + \" | Website status: \" + ($json.site_status || \"unknown\") + \" | Scraped page content: \" + $json.scraped_text) }} }\n  ]\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "openai-decision-maker",
+      "name": "9. OpenAI Decision Maker Extractor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2420,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-cred-id",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"temperature\": 0.7,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    { \"role\": \"system\", \"content\": {{ JSON.stringify(\"You are a professional B2B email copywriter for healthcare partnerships in Dhaka, Bangladesh. Using the extracted intelligence, write a concise personalized cold email under 120 words, addressed to the decision maker by name and title when one is known (otherwise to the management team) and referencing something specific about the organisation (its services, location or size). Respond strictly with a JSON object using exactly these keys: {\\\"subject_line\\\": \\\"\\\", \\\"email_body\\\": \\\"\\\", \\\"personalized_hook\\\": \\\"\\\"}\" + $('0. Offer Profile').first().json.writerContext) }} },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify(\"Target company: \" + $('8. Extract Page Text & Contact Signals').item.json.search_title + \" | Website: \" + $('8. Extract Page Text & Contact Signals').item.json.company_domain + \" | Extracted intelligence (JSON, includes fit_score / fit_reason): \" + ($json.choices && $json.choices[0] && $json.choices[0].message ? $json.choices[0].message.content : \"not available\") + \" | Website signals (deterministic checks of their HTML - a missing feature is a strong, specific opener): \" + ($('8. Extract Page Text & Contact Signals').item.json.website_signals || \"not available\") + \" | Website excerpt (for the specific opening observation): \" + String($('8. Extract Page Text & Contact Signals').item.json.scraped_text || \"\").slice(0, 1500)) }} }\n  ]\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "openai-email-writer",
+      "name": "10. OpenAI Personalized Email Writer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-cred-id",
+          "name": "OpenAI account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Runs once for all items. Nodes 8, 9 and 10 each emit exactly one item per lead (errors included,\n// because they continue on error), so the three arrays line up by index.\nconst companies = $('8. Extract Page Text & Contact Signals').all();\nconst extractions = $('9. OpenAI Decision Maker Extractor').all();\nconst emails = $input.all();\n\nconst parseChoice = (item) => {\n  try {\n    return JSON.parse(item.json.choices[0].message.content) || {};\n  } catch (e) {\n    return {};\n  }\n};\n\nconst clean = (v) => {\n  if (v == null) return '';\n  const s = Array.isArray(v) ? v.join('; ') : String(v).trim();\n  return /^(n\\/a|none|null|unknown|not available|not found|-)$/i.test(s) ? '' : s;\n};\n\n// 'Green Life Hospital Ltd | Best Hospital in Dhaka' -> 'Green Life Hospital Ltd' (search titles carry SEO tails)\nconst GENERIC_SEGMENT = /^(?:home(?:page)?|welcome(?: to)?|contact(?: us)?|about(?: us)?|services|login|official website)$/i;\nconst SEO_SEGMENT = /^(?:the\\s+)?(?:best|top|leading|no\\.?\\s*1|number one|#1)\\b/i;\nconst cleanCompanyName = (title, domain) => {\n  const segments = String(title || '').split(/\\s+[|\\-–—:]\\s+|\\s*\\|\\s*/).filter(s => s.trim());\n  for (let segment of segments) {\n    segment = segment.replace(/^(?:home|welcome to|official website of)\\s*[-:|]?\\s*/i, '').trim();\n    if (segment.length >= 3 && !GENERIC_SEGMENT.test(segment) && !SEO_SEGMENT.test(segment)) return segment;\n  }\n  const label = String(domain || '').split('.')[0];\n  if (label.length >= 4) return label.replace(/[-_]/g, ' ').replace(/\\b\\w/g, c => c.toUpperCase());   // every segment was an SEO tagline\n  return (segments[0] || String(title || '')).trim();\n};\n\n// '01712-345 678' -> '+8801712345678', '02-9612345' -> '+88029612345'; short hotlines (10606) are kept\nconst normalizeBdPhone = (raw) => {\n  let digits = String(raw || '').replace(/\\D/g, '');\n  if (!digits) return String(raw || '').trim();\n  if (digits.startsWith('00880')) digits = digits.slice(2);\n  if (digits.startsWith('880') && digits.length >= 11) return '+' + digits;\n  if (digits.startsWith('0') && [9, 10, 11].includes(digits.length)) return '+880' + digits.slice(1);\n  if (digits.length <= 6) return digits;\n  return String(raw || '').trim();\n};\nconst normalizePhones = (value) => [...new Set(String(value || '').split(/[,;/|]|\\s{2,}|\\band\\b/).filter(p => p.trim()).map(normalizeBdPhone))].join(', ');\n\n// Telegram alert is sent in HTML parse mode, so escape anything that could be read as a tag\nconst esc = (v) => String(v == null ? '' : v)\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;');\nconst line = (label, value) => value ? `${label} ${esc(value)}\\n` : '';\n\nreturn emails.map((emailItem, i) => {\n  const company = (companies[i] && companies[i].json) || {};\n  const extracted = extractions[i] ? parseChoice(extractions[i]) : {};\n  const email = parseChoice(emailItem);\n\n  const lead = {\n    \"Company Name\": clean(extracted.company_name) || cleanCompanyName(company.search_title, company.company_domain) || 'Unknown',\n    \"Healthcare Type\": clean(extracted.healthcare_type) || company.known_type || '',\n    \"Dhaka Location\": clean(extracted.dhaka_location) || company.known_location || '',\n    \"Full Address\": clean(extracted.full_address) || company.known_address || '',\n    \"Website\": company.company_url || '',\n    \"Phone\": normalizePhones(clean(extracted.contact_phone) || company.known_phone || clean(company.found_phones).split(',')[0].trim()),\n    \"Generic Email\": clean(extracted.generic_email) || company.known_email || clean(company.found_emails).split(',')[0].trim(),\n    \"Facebook Page\": clean(extracted.facebook_page) || clean(company.found_facebook).split(',')[0].trim(),\n    \"Key Services\": clean(extracted.key_services),\n    \"Fit Score\": clean(extracted.fit_score),\n    \"Fit Reason\": clean(extracted.fit_reason),\n    \"Website Signals\": company.website_signals || '',\n    \"Decision Maker Name\": clean(extracted.decision_maker_name),\n    \"Decision Maker Title\": clean(extracted.decision_maker_title),\n    \"Decision Maker Email\": clean(extracted.decision_maker_email),\n    \"Decision Maker Phone\": normalizePhones(clean(extracted.decision_maker_phone)),\n    \"Decision Maker LinkedIn\": clean(extracted.decision_maker_linkedin) || company.online_lookup_linkedin || clean(company.found_linkedin).split(',')[0].trim(),\n    \"Other Decision Makers\": clean(extracted.other_decision_makers),\n    \"Email Subject\": clean(email.subject_line),\n    \"Personalized Hook\": clean(email.personalized_hook),\n    \"Personalized Email\": clean(email.email_body),\n    \"Timestamp\": new Date().toISOString(),\n    // not sheet columns (node 12 maps columns explicitly) - used by nodes 12b and 14\n    \"_source\": company.source || 'web search',\n    \"_fit\": parseInt(clean(extracted.fit_score), 10) || 0\n  };\n\n  lead[\"Telegram Message\"] =\n    `🏥 <b>NEW DHAKA HEALTHCARE LEAD</b>\\n\\n` +\n    line('🏢 <b>Company:</b>', lead[\"Company Name\"]) +\n    line('🏷 <b>Type:</b>', lead[\"Healthcare Type\"]) +\n    line('📍 <b>Location:</b>', lead[\"Dhaka Location\"]) +\n    line('🏠 <b>Address:</b>', lead[\"Full Address\"]) +\n    line('🌐 <b>Website:</b>', lead[\"Website\"]) +\n    line('📞 <b>Phone:</b>', lead[\"Phone\"]) +\n    line('📧 <b>Email:</b>', lead[\"Generic Email\"]) +\n    line('📘 <b>Facebook:</b>', lead[\"Facebook Page\"]) +\n    line('🩺 <b>Services:</b>', lead[\"Key Services\"]) +\n    line('🎯 <b>Offer fit:</b>', lead[\"Fit Score\"] ? lead[\"Fit Score\"] + '/5 - ' + lead[\"Fit Reason\"] : '') +\n    `\\n👑 <b>DECISION MAKER</b>\\n` +\n    line('👤 <b>Name:</b>', lead[\"Decision Maker Name\"] || 'Not found on site') +\n    line('💼 <b>Title:</b>', lead[\"Decision Maker Title\"]) +\n    line('📧 <b>Direct Email:</b>', lead[\"Decision Maker Email\"]) +\n    line('📱 <b>Direct Phone:</b>', lead[\"Decision Maker Phone\"]) +\n    line('🔗 <b>LinkedIn:</b>', lead[\"Decision Maker LinkedIn\"]) +\n    line('👥 <b>Others:</b>', lead[\"Other Decision Makers\"]) +\n    `\\n` +\n    line('✉️ <b>Draft Subject:</b>', lead[\"Email Subject\"]) +\n    line('💡 <b>Hook:</b>', lead[\"Personalized Hook\"]) +\n    `\\n<i>Saved to Google Sheets pipeline.</i>`;\n\n  return { json: lead, pairedItem: { item: i } };\n});"
+      },
+      "id": "merge-format-payload",
+      "name": "11. Merge & Format Lead Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company Name": "={{ $json[\"Company Name\"] }}",
+            "Healthcare Type": "={{ $json[\"Healthcare Type\"] }}",
+            "Dhaka Location": "={{ $json[\"Dhaka Location\"] }}",
+            "Full Address": "={{ $json[\"Full Address\"] }}",
+            "Website": "={{ $json[\"Website\"] }}",
+            "Phone": "={{ $json[\"Phone\"] }}",
+            "Generic Email": "={{ $json[\"Generic Email\"] }}",
+            "Facebook Page": "={{ $json[\"Facebook Page\"] }}",
+            "Key Services": "={{ $json[\"Key Services\"] }}",
+            "Fit Score": "={{ $json[\"Fit Score\"] }}",
+            "Fit Reason": "={{ $json[\"Fit Reason\"] }}",
+            "Website Signals": "={{ $json[\"Website Signals\"] }}",
+            "Decision Maker Name": "={{ $json[\"Decision Maker Name\"] }}",
+            "Decision Maker Title": "={{ $json[\"Decision Maker Title\"] }}",
+            "Decision Maker Email": "={{ $json[\"Decision Maker Email\"] }}",
+            "Decision Maker Phone": "={{ $json[\"Decision Maker Phone\"] }}",
+            "Decision Maker LinkedIn": "={{ $json[\"Decision Maker LinkedIn\"] }}",
+            "Other Decision Makers": "={{ $json[\"Other Decision Makers\"] }}",
+            "Email Subject": "={{ $json[\"Email Subject\"] }}",
+            "Personalized Hook": "={{ $json[\"Personalized Hook\"] }}",
+            "Personalized Email": "={{ $json[\"Personalized Email\"] }}",
+            "Timestamp": "={{ $json[\"Timestamp\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Healthcare Type",
+              "displayName": "Healthcare Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dhaka Location",
+              "displayName": "Dhaka Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Address",
+              "displayName": "Full Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "displayName": "Website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Generic Email",
+              "displayName": "Generic Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Facebook Page",
+              "displayName": "Facebook Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Key Services",
+              "displayName": "Key Services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fit Score",
+              "displayName": "Fit Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fit Reason",
+              "displayName": "Fit Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website Signals",
+              "displayName": "Website Signals",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Decision Maker Name",
+              "displayName": "Decision Maker Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Decision Maker Title",
+              "displayName": "Decision Maker Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Decision Maker Email",
+              "displayName": "Decision Maker Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Decision Maker Phone",
+              "displayName": "Decision Maker Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Decision Maker LinkedIn",
+              "displayName": "Decision Maker LinkedIn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Other Decision Makers",
+              "displayName": "Other Decision Makers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Subject",
+              "displayName": "Email Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personalized Hook",
+              "displayName": "Personalized Hook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personalized Email",
+              "displayName": "Personalized Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "google-sheets-crm",
+      "name": "12. Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        3080,
+        200
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "google-sheets-cred-id",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Only leads with Fit Score >= MIN_FIT_ALERT (node 0) get an individual Telegram alert; every lead is still saved to\n// the sheet and counted in the run summary. With MIN_FIT_ALERT = 0 all leads are alerted.\nconst minFit = $('0. Offer Profile').first().json.minFitAlert || 0;\nreturn $input.all()\n  .map((item, i) => ({ json: item.json, pairedItem: { item: i } }))\n  .filter(item => !minFit || (item.json._fit && item.json._fit >= minFit));\n"
+      },
+      "id": "filter-telegram-alerts",
+      "name": "12b. Filter Telegram Alerts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json[\"Telegram Message\"] }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-alert",
+      "name": "13. Telegram Lead Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3300,
+        400
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-cred-id",
+          "name": "Telegram Bot Account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2500
+    },
+    {
+      "parameters": {
+        "jsCode": "// Runs once with every formatted lead of this execution and builds one Telegram message: what the run produced,\n// where the leads came from, how they scored against the offer and which ones to call first.\nconst leads = $input.all().map(i => i.json);\nconst n = leads.length;\n// The two numbers a manager asks for: hours of manual research replaced and what the AI cost\nconst MANUAL_MINUTES_PER_LEAD = 25;   // find the company, its decision maker, contacts, write a tailored email - by hand\nconst AI_COST_PER_LEAD_USD = 0.004;   // two gpt-4o-mini calls with the offer brief in the prompt (estimate)\nconst hours = (n * MANUAL_MINUTES_PER_LEAD / 60).toFixed(1);\nconst cost = (n * AI_COST_PER_LEAD_USD).toFixed(2);\nconst esc = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nconst sources = {};\nfor (const l of leads) sources[l._source || 'web search'] = (sources[l._source || 'web search'] || 0) + 1;\nconst sourceLine = Object.entries(sources).sort((a, b) => b[1] - a[1]).map(([s, c]) => `${s} ${c}`).join(' · ');\n\nconst fits = leads.map(l => l._fit || 0);\nconst count = (v) => fits.filter(f => f === v).length;\nconst low = fits.filter(f => f > 0 && f <= 2).length;\nconst fitParts = [5, 4, 3].filter(count).map(v => `${v}★ ${count(v)}`);\nif (low) fitParts.push(`≤2★ ${low}`);\nif (count(0)) fitParts.push(`unrated ${count(0)}`);\nconst fitLine = fitParts.join(' · ') || 'no offer brief';\n\nconst dm = leads.filter(l => l[\"Decision Maker Name\"]).length;\nconst dmEmail = leads.filter(l => l[\"Decision Maker Email\"]).length;\nconst phone = leads.filter(l => l[\"Phone\"]).length;\nconst email = leads.filter(l => l[\"Generic Email\"]).length;\nconst top = leads.filter(l => (l._fit || 0) >= 4).sort((a, b) => b._fit - a._fit).slice(0, 5);\n\nconst lines = [\n  `📊 <b>RUN SUMMARY</b> - ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`,\n  `✅ <b>${n} new leads</b> saved to Google Sheets`,\n  `📡 Sources: ${esc(sourceLine || '-')}`,\n  `🎯 Offer fit: ${esc(fitLine)}`,\n  `👑 Decision maker found: ${dm}/${n} · direct email ${dmEmail} · phone ${phone} · email ${email}`,\n  `⏱ Manual research replaced: ~${hours} h (${n} × ${MANUAL_MINUTES_PER_LEAD} min) · 💰 AI cost: ~$${cost}`\n];\nif (top.length) {\n  lines.push('', '🔥 <b>Top fits</b>');\n  top.forEach((l, i) => {\n    lines.push(`${i + 1}. <b>${esc(l[\"Company Name\"])}</b> - ${l._fit}/5` +\n      (l[\"Decision Maker Name\"] ? ` - ${esc(l[\"Decision Maker Name\"])} (${esc(l[\"Decision Maker Title\"] || '?')})` : ''));\n    if (l[\"Fit Reason\"]) lines.push(`   <i>${esc(String(l[\"Fit Reason\"]).slice(0, 120))}</i>`);\n  });\n}\nif (!n) lines.push('', '⚠️ No new leads this run - every candidate was already in the sheet or the sources were throttled. Widen areas / categories or the OpenStreetMap bounding box.');\n\nreturn [{ json: { summary: lines.join('\\n'), leads: n, decision_makers: dm, sources, fit_distribution: { 5: count(5), 4: count(4), 3: count(3), low, unrated: count(0) }, hours_saved: Number(hours), ai_cost_usd: Number(cost) } }];\n"
+      },
+      "id": "build-run-summary",
+      "name": "14. Build Run Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        600
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.summary }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-run-summary",
+      "name": "15. Telegram Run Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3300,
+        600
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-cred-id",
+          "name": "Telegram Bot Account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2500
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "0. Offer Profile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "1b. OpenStreetMap Healthcare Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Search Query Generator (Dhaka)": {
+      "main": [
+        [
+          {
+            "node": "2. Web Search (Bing + DuckDuckGo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Extract Search Results": {
+      "main": [
+        [
+          {
+            "node": "3c. Combine Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Remove Duplicates (this run)": {
+      "main": [
+        [
+          {
+            "node": "5. Read Existing Leads (Google Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Read Existing Leads (Google Sheets)": {
+      "main": [
+        [
+          {
+            "node": "6. Skip Known Leads & Limit to 50",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Skip Known Leads & Limit to 50": {
+      "main": [
+        [
+          {
+            "node": "7. Fetch Company Homepage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7. Fetch Company Homepage": {
+      "main": [
+        [
+          {
+            "node": "8. Extract Page Text & Contact Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Extract Page Text & Contact Signals": {
+      "main": [
+        [
+          {
+            "node": "9. OpenAI Decision Maker Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "9. OpenAI Decision Maker Extractor": {
+      "main": [
+        [
+          {
+            "node": "10. OpenAI Personalized Email Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10. OpenAI Personalized Email Writer": {
+      "main": [
+        [
+          {
+            "node": "11. Merge & Format Lead Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "11. Merge & Format Lead Payload": {
+      "main": [
+        [
+          {
+            "node": "12. Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "12b. Filter Telegram Alerts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "14. Build Run Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Web Search (Bing + DuckDuckGo)": {
+      "main": [
+        [
+          {
+            "node": "3. Extract Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1b. OpenStreetMap Healthcare Lookup": {
+      "main": [
+        [
+          {
+            "node": "3b. Parse OpenStreetMap Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3b. Parse OpenStreetMap Leads": {
+      "main": [
+        [
+          {
+            "node": "3c. Combine Candidates",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "3c. Combine Candidates": {
+      "main": [
+        [
+          {
+            "node": "4. Remove Duplicates (this run)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "0. Offer Profile": {
+      "main": [
+        [
+          {
+            "node": "1. Search Query Generator (Dhaka)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "12b. Filter Telegram Alerts": {
+      "main": [
+        [
+          {
+            "node": "13. Telegram Lead Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "14. Build Run Summary": {
+      "main": [
+        [
+          {
+            "node": "15. Telegram Run Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Schedule (disabled - enable to automate)": {
+      "main": [
+        [
+          {
+            "node": "0. Offer Profile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "1b. OpenStreetMap Healthcare Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Dhaka"
+  }
+}
